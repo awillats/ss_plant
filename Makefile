@@ -1,9 +1,9 @@
-PLUGIN_NAME = plugin_template
+PLUGIN_NAME = ss_plant
 
-HEADERS = plugin-template.h
+HEADERS = ss_plant.h
 
-SOURCES = plugin-template.cpp\
-          moc_plugin-template.cpp\
+SOURCES = ss_plant.cpp\
+          moc_ss_plant.cpp\
 
 LIBS = 
 

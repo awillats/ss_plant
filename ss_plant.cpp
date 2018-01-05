@@ -21,14 +21,14 @@
  * DefaultGUIModel with a custom GUI.
  */
 
-#include "plugin-template.h"
+#include "ss_plant.h"
 #include <iostream>
 #include <main_window.h>
 
 extern "C" Plugin::Object*
 createRTXIPlugin(void)
 {
-  return new PluginTemplate();
+  return new SsPlant();
 }
 
 static DefaultGUIModel::variable_t vars[] = {
@@ -43,10 +43,10 @@ static DefaultGUIModel::variable_t vars[] = {
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 
-PluginTemplate::PluginTemplate(void)
-  : DefaultGUIModel("PluginTemplate with Custom GUI", ::vars, ::num_vars)
+SsPlant::SsPlant(void)
+  : DefaultGUIModel("SsPlant with Custom GUI", ::vars, ::num_vars)
 {
-  setWhatsThis("<p><b>PluginTemplate:</b><br>QWhatsThis description.</p>");
+  setWhatsThis("<p><b>SsPlant:</b><br>QWhatsThis description.</p>");
   DefaultGUIModel::createGUI(vars,
                              num_vars); // this is required to create the GUI
   customizeGUI();
@@ -58,25 +58,25 @@ PluginTemplate::PluginTemplate(void)
   QTimer::singleShot(0, this, SLOT(resizeMe()));
 }
 
-PluginTemplate::~PluginTemplate(void)
+SsPlant::~SsPlant(void)
 {
 }
 
 void
-PluginTemplate::execute(void)
+SsPlant::execute(void)
 {
   return;
 }
 
 void
-PluginTemplate::initParameters(void)
+SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
 }
 
 void
-PluginTemplate::update(DefaultGUIModel::update_flags_t flag)
+SsPlant::update(DefaultGUIModel::update_flags_t flag)
 {
   switch (flag) {
     case INIT:
@@ -105,7 +105,7 @@ PluginTemplate::update(DefaultGUIModel::update_flags_t flag)
 }
 
 void
-PluginTemplate::customizeGUI(void)
+SsPlant::customizeGUI(void)
 {
   QGridLayout* customlayout = DefaultGUIModel::getLayout();
 
@@ -126,11 +126,11 @@ PluginTemplate::customizeGUI(void)
 
 // functions designated as Qt slots are implemented as regular C++ functions
 void
-PluginTemplate::aBttn_event(void)
+SsPlant::aBttn_event(void)
 {
 }
 
 void
-PluginTemplate::bBttn_event(void)
+SsPlant::bBttn_event(void)
 {
 }
