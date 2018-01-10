@@ -17,8 +17,8 @@
  */
 
 /*
- * This is a template implementation file for a user module derived from
- * DefaultGUIModel with a custom GUI.
+ * do gui elements last, just get outputs to screen
+ * 
  */
 
 #include "ss_plant.h"
@@ -37,8 +37,17 @@ static DefaultGUIModel::variable_t vars[] = {
     DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE,
   },
   {
-    "A State", "Tooltip description", DefaultGUIModel::STATE,
+    "x1", "Tooltip description", DefaultGUIModel::STATE,
   },
+  {
+    "x2", "Tooltip description", DefaultGUIModel::STATE,
+  },
+	{
+		"y","output", DefaultGUIModel::OUTPUT,
+	},
+	{
+		"u-delete eventually","input", DefaultGUIModel::OUTPUT,
+	},
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -62,9 +71,23 @@ SsPlant::~SsPlant(void)
 {
 }
 
+
+void SsPlant::stepPlant(double uin)
+{
+	x = A*x + B*u;
+	y = C*x;
+
+}
+
 void
 SsPlant::execute(void)
 {
+	stepPlant(input(0));
+	setState("x1",x(0));
+	setState("x2",x(1));
+	
+	output(0) = y;
+	output(1) = u;
   return;
 }
 
@@ -73,6 +96,40 @@ SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
+
+	A << 0.9990, 0.0095,
+		-0.1903, -0.9039;
+
+	B << 0,
+		 0.0095;
+
+	C << 1,0;
+	D=0;
+
+	x << 0,0;
+	y=0;
+	u=0;
+
+
+/*
+  Eigen::Matrix2d mat;
+	mat <<1,2, 3,4;
+std::cout << mat*mat;
+  */
+/*
+  Eigen::Matrix2d A(2,2);
+	A(0,0)=0.0;
+	A(0,1) =0.5;
+	A(1,0) = 1.5;
+	A(1,1) = 0.78;
+	std::cout<<A<<endl;
+	std::cout<<A*A<<endl;
+*/
+  //A<< 1,2,3, 4,5,6, 7,8,10;
+  //b << 3, 3, 4;
+  //std::cout <<"Here is the matrix A:\n" << A << endl;
+
+
 }
 
 void
@@ -82,7 +139,7 @@ SsPlant::update(DefaultGUIModel::update_flags_t flag)
     case INIT:
       period = RT::System::getInstance()->getPeriod() * 1e-6; // ms
       setParameter("GUI label", some_parameter);
-      setState("A State", some_state);
+      //setState("A State", some_state);
       break;
 
     case MODIFY:
@@ -111,8 +168,8 @@ SsPlant::customizeGUI(void)
 
   QGroupBox* button_group = new QGroupBox;
 
-  QPushButton* abutton = new QPushButton("Button A");
-  QPushButton* bbutton = new QPushButton("Button B");
+  QPushButton* abutton = new QPushButton("Stim On");
+  QPushButton* bbutton = new QPushButton("Stim Off");
   QHBoxLayout* button_layout = new QHBoxLayout;
   button_group->setLayout(button_layout);
   button_layout->addWidget(abutton);
@@ -128,9 +185,11 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
+	u=1;
 }
 
 void
 SsPlant::bBttn_event(void)
 {
+	u=0;
 }

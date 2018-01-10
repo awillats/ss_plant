@@ -23,6 +23,8 @@
 
 #include <default_gui_model.h>
 
+#include "../../../module_help/eigen/Eigen/Dense"
+
 class SsPlant : public DefaultGUIModel
 {
 
@@ -44,6 +46,17 @@ private:
   double some_state;
   double period;
 
+	Eigen::Matrix2d A;
+	Eigen::Vector2d B;
+	Eigen::RowVector2d C;
+	float D;
+
+	Eigen::Vector2d x;
+	float y;
+	float u;
+
+
+  void stepPlant(double);
   void initParameters();
 
 private slots:
