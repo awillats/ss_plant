@@ -63,6 +63,8 @@ private:
 
   std::vector<double> pullParamLine(std::ifstream&);
   void loadSys(void);
+  void resetSys(void);
+  void printSys(void);
   void stepPlant(double);
   void initParameters();
 

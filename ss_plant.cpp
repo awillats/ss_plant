@@ -110,28 +110,23 @@ std::vector<double> SsPlant::pullParamLine(std::ifstream& paramFile)
 	std::stringstream iss(line);
 	std::getline(iss, label,'[');
 	std::getline(iss, juice,']');
-	std::cout << label << "_" << juice <<"\n";
+	std::cout << label << juice <<"\n";
 	
 	std::stringstream sstream(juice);
-	double num;
-	std::vector<double> nums;
-	
 	if (!sstream.good())
 	{
 		std::cout << "\n\nERROR:stream bad, probably got to the end of the file??\n\n";
 	}
 
+	double num;
+	std::vector<double> nums;
+	
 	while(sstream >> num)
 	{
-		std::cout << num << "\n";
+		//std::cout << num << "\n";
 		nums.push_back(num);
 		//A<<num;
 	}
-	std::cout<<"\n"<<"\n";
-	//sscanf("%f",juice, &num);
-
-	
-
 	return nums;
 }
 
@@ -177,54 +172,40 @@ SsPlant::loadSys(void)
 */
 }
 
+void SsPlant::printSys(void)
+{
+  std::cout <<"Here is the matrix A:\n" << A << "\n";
+  std::cout <<"Here is the matrix B:\n" << B << "\n";
+  std::cout <<"Here is the matrix C:\n" << C << "\n";
+  std::cout <<"Here is the matrix D:\n" << D << "\n";
+}
+
+void SsPlant::resetSys(void)
+{
+	x << 0,0;
+	y = 0;
+	u = 0;
+}
+
+
 void
 SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
 
-
+/*
 	A << 0.9990, 0.0095,
 		-0.1903, 0.9039;
-
 	B << 0,
 		 0.0095;
-
 	C << 1,0;
 	D=0;
+*/
 
 	loadSys();
-
-  std::cout <<"Here is the matrix A:\n" << A << "\n";
-  std::cout <<"Here is the matrix B:\n" << B << "\n";
-  std::cout <<"Here is the matrix C:\n" << C << "\n";
-  std::cout <<"Here is the matrix D:\n" << D << "\n";
-
-
-	x << 0,0;
-	y=0;
-	u=0;
-
-
-
-/*
-  Eigen::Matrix2d mat;
-	mat <<1,2, 3,4;
-std::cout << mat*mat;
-  */
-/*
-  Eigen::Matrix2d A(2,2);
-	A(0,0)=0.0;
-	A(0,1) =0.5;
-	A(1,0) = 1.5;
-	A(1,1) = 0.78;
-	std::cout<<A<<endl;
-	std::cout<<A*A<<endl;
-*/
-  //A<< 1,2,3, 4,5,6, 7,8,10;
-  //b << 3, 3, 4;
-
-
+	printSys();
+	resetSys();
 }
 
 void
@@ -281,7 +262,8 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	//u=1;
+	loadSys();
+	printSys();
 }
 /*
 void
