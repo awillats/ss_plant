@@ -102,6 +102,8 @@ SsPlant::loadSys(void)
 {	
 	std::ifstream myfile;
 	myfile.open("../ss_ctrl/params/plant_params.txt");
+
+	//std::cout<<"load works here"<<"\n";
 	// numA;
 	//halp::simpleFun();
 	pullParamLine(myfile); //gets nx
