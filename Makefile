@@ -4,6 +4,7 @@ HEADERS = ss_plant.h
 
 SOURCES = ss_plant.cpp\
           moc_ss_plant.cpp\
+		  ../../../module_help/StAC_rtxi/dataFuns.cpp\
 
 LIBS = 
 

@@ -81,7 +81,6 @@ void SsPlant::stepPlant(double uin)
 	u = uin;
 	x = A*x + B*u;
 	y = C*x;
-
 }
 
 void
@@ -98,48 +97,13 @@ SsPlant::execute(void)
 }
 
 
-std::vector<double> SsPlant::pullParamLine(std::ifstream& paramFile)
-{
-	//takes a string which looks like "z = [1,2,3,4] and returns "1,2,3,4" as juice
-	//and "z = " as label. It's really looking for what's inside the [] and what's before it
-	std::string line;
-	std::string label;
-	std::string juice;
-
-	std::getline(paramFile,line);
-	std::stringstream iss(line);
-	std::getline(iss, label,'[');
-	std::getline(iss, juice,']');
-	std::cout << label << juice <<"\n";
-	
-	std::stringstream sstream(juice);
-	if (!sstream.good())
-	{
-		std::cout << "\n\nERROR:stream bad, probably got to the end of the file??\n\n";
-	}
-
-	double num;
-	std::vector<double> nums;
-	
-	while(sstream >> num)
-	{
-		//std::cout << num << "\n";
-		nums.push_back(num);
-		//A<<num;
-	}
-	return nums;
-}
-
-
-
-
 void
 SsPlant::loadSys(void)
 {	
 	std::ifstream myfile;
 	myfile.open("../ss_ctrl/params/plant_params.txt");
 	// numA;
-
+	//halp::simpleFun();
 	pullParamLine(myfile); //gets nx
 
 	std::vector<double> numA = pullParamLine(myfile); 	
@@ -245,13 +209,13 @@ SsPlant::customizeGUI(void)
   QGroupBox* button_group = new QGroupBox;
 
   QPushButton* abutton = new QPushButton("Load Matrices");
-  //QPushButton* bbutton = new QPushButton("Stim Off");
+  QPushButton* bbutton = new QPushButton("Reset Sys");
   QHBoxLayout* button_layout = new QHBoxLayout;
   button_group->setLayout(button_layout);
   button_layout->addWidget(abutton);
-  //button_layout->addWidget(bbutton);
+  button_layout->addWidget(bbutton);
   QObject::connect(abutton, SIGNAL(clicked()), this, SLOT(aBttn_event()));
-  //QObject::connect(bbutton, SIGNAL(clicked()), this, SLOT(bBttn_event()));
+  QObject::connect(bbutton, SIGNAL(clicked()), this, SLOT(bBttn_event()));
 
   customlayout->addWidget(button_group, 0, 0);
 
@@ -265,10 +229,10 @@ SsPlant::aBttn_event(void)
 	loadSys();
 	printSys();
 }
-/*
+
 void
 SsPlant::bBttn_event(void)
 {
-	//u=0;
+	resetSys();
 }
-*/
+

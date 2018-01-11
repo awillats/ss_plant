@@ -26,6 +26,9 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include "../../../module_help/StAC_rtxi/dataFuns.h"//for pullParamLine
+
+//#include "help.h"
 
 #include <default_gui_model.h>
 
@@ -52,6 +55,7 @@ private:
   double some_state;
   double period;
 
+
 	Eigen::Matrix2d A;
 	Eigen::Vector2d B;
 	Eigen::RowVector2d C;
@@ -59,9 +63,9 @@ private:
 
 	Eigen::Vector2d x;
 	float y;
+
 	float u;
 
-  std::vector<double> pullParamLine(std::ifstream&);
   void loadSys(void);
   void resetSys(void);
   void printSys(void);
@@ -73,5 +77,5 @@ private slots:
   // through the Qt API. they must be implemented in plugin_template.cpp
 
   void aBttn_event(void);
-  //void bBttn_event(void);
+  void bBttn_event(void);
 };
