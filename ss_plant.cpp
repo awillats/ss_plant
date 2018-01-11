@@ -22,7 +22,6 @@
  */
 
 #include "ss_plant.h"
-#include <iostream>
 #include <main_window.h>
 
 extern "C" Plugin::Object*
@@ -33,20 +32,25 @@ createRTXIPlugin(void)
 
 static DefaultGUIModel::variable_t vars[] = {
   {
-    "GUI label", "Tooltip description",
+    "State-space plant", "Tooltip description",
     DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE,
   },
-  {
-    "x1", "Tooltip description", DefaultGUIModel::STATE,
-  },
-  {
-    "x2", "Tooltip description", DefaultGUIModel::STATE,
-  },
+
 	{
 		"y","output", DefaultGUIModel::OUTPUT,
 	},
+  {
+    "x1", "Tooltip description", DefaultGUIModel::OUTPUT,
+  },
+  {
+    "x2", "Tooltip description", DefaultGUIModel::OUTPUT,
+  },
+
 	{
-		"u-delete eventually","input", DefaultGUIModel::OUTPUT,
+		"ustim","input", DefaultGUIModel::INPUT,
+	},
+	{
+		"u dist","disturbance", DefaultGUIModel::INPUT,
 	},
 };
 
@@ -74,6 +78,7 @@ SsPlant::~SsPlant(void)
 
 void SsPlant::stepPlant(double uin)
 {
+	u = uin;
 	x = A*x + B*u;
 	y = C*x;
 
@@ -82,13 +87,94 @@ void SsPlant::stepPlant(double uin)
 void
 SsPlant::execute(void)
 {
-	stepPlant(input(0));
+	stepPlant(input(0)+input(1));
 	setState("x1",x(0));
 	setState("x2",x(1));
 	
 	output(0) = y;
-	output(1) = u;
+	output(1) = x(0);
+	output(2) = x(1);
   return;
+}
+
+
+std::vector<double> SsPlant::pullParamLine(std::ifstream& paramFile)
+{
+	//takes a string which looks like "z = [1,2,3,4] and returns "1,2,3,4" as juice
+	//and "z = " as label. It's really looking for what's inside the [] and what's before it
+	std::string line;
+	std::string label;
+	std::string juice;
+
+	std::getline(paramFile,line);
+	std::stringstream iss(line);
+	std::getline(iss, label,'[');
+	std::getline(iss, juice,']');
+	std::cout << label << "_" << juice <<"\n";
+	
+	std::stringstream sstream(juice);
+	double num;
+	std::vector<double> nums;
+	
+	if (!sstream.good())
+	{
+		std::cout << "\n\nERROR:stream bad, probably got to the end of the file??\n\n";
+	}
+
+	while(sstream >> num)
+	{
+		std::cout << num << "\n";
+		nums.push_back(num);
+		//A<<num;
+	}
+	std::cout<<"\n"<<"\n";
+	//sscanf("%f",juice, &num);
+
+	
+
+	return nums;
+}
+
+
+
+
+void
+SsPlant::loadSys(void)
+{	
+	std::ifstream myfile;
+	myfile.open("../ss_ctrl/params/plant_params.txt");
+	// numA;
+
+	pullParamLine(myfile); //gets nx
+
+	std::vector<double> numA = pullParamLine(myfile); 	
+	Eigen::Map<Eigen::Matrix2d> tA(numA.data(),A.rows(),A.cols());
+	A = tA;
+	
+	std::vector<double> numB = pullParamLine(myfile); 	
+	Eigen::Map<Eigen::Vector2d> tB(numB.data(),B.rows(),1);
+	B = tB;
+
+	std::vector<double> numC = pullParamLine(myfile); 	
+	Eigen::Map<Eigen::RowVector2d> tC(numC.data(),1,C.cols());
+	C = tC;
+
+	//For some silly reason, can't load D this way
+	std::vector<double> numD = pullParamLine(myfile); 	
+	//std::cout <<"ww"<< *numD.begin()<<"ww\n";
+	D = numD[0];
+	//D = (float) numD.at(0);
+	
+	myfile.close();
+/*
+	//look on stackoverflow @ initialize eigenvector with stdvector
+	float data[] = {1,2,3,4};
+	Eigen::Map<Eigen::Vector3f> v1(data);
+	std::vector<float> data2= {1,2,3,4};
+	Eigen::Vector3f v2(data2.data());
+	std::cout<<v2<<"?\n";
+	//Eigen::Matrix2f zz;
+*/
 }
 
 void
@@ -97,8 +183,9 @@ SsPlant::initParameters(void)
   some_parameter = 0;
   some_state = 0;
 
+
 	A << 0.9990, 0.0095,
-		-0.1903, -0.9039;
+		-0.1903, 0.9039;
 
 	B << 0,
 		 0.0095;
@@ -106,9 +193,18 @@ SsPlant::initParameters(void)
 	C << 1,0;
 	D=0;
 
+	loadSys();
+
+  std::cout <<"Here is the matrix A:\n" << A << "\n";
+  std::cout <<"Here is the matrix B:\n" << B << "\n";
+  std::cout <<"Here is the matrix C:\n" << C << "\n";
+  std::cout <<"Here is the matrix D:\n" << D << "\n";
+
+
 	x << 0,0;
 	y=0;
 	u=0;
+
 
 
 /*
@@ -127,7 +223,6 @@ std::cout << mat*mat;
 */
   //A<< 1,2,3, 4,5,6, 7,8,10;
   //b << 3, 3, 4;
-  //std::cout <<"Here is the matrix A:\n" << A << endl;
 
 
 }
@@ -168,16 +263,17 @@ SsPlant::customizeGUI(void)
 
   QGroupBox* button_group = new QGroupBox;
 
-  QPushButton* abutton = new QPushButton("Stim On");
-  QPushButton* bbutton = new QPushButton("Stim Off");
+  QPushButton* abutton = new QPushButton("Load Matrices");
+  //QPushButton* bbutton = new QPushButton("Stim Off");
   QHBoxLayout* button_layout = new QHBoxLayout;
   button_group->setLayout(button_layout);
   button_layout->addWidget(abutton);
-  button_layout->addWidget(bbutton);
+  //button_layout->addWidget(bbutton);
   QObject::connect(abutton, SIGNAL(clicked()), this, SLOT(aBttn_event()));
-  QObject::connect(bbutton, SIGNAL(clicked()), this, SLOT(bBttn_event()));
+  //QObject::connect(bbutton, SIGNAL(clicked()), this, SLOT(bBttn_event()));
 
   customlayout->addWidget(button_group, 0, 0);
+
   setLayout(customlayout);
 }
 
@@ -185,11 +281,12 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	u=1;
+	//u=1;
 }
-
+/*
 void
 SsPlant::bBttn_event(void)
 {
-	u=0;
+	//u=0;
 }
+*/
