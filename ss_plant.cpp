@@ -100,8 +100,9 @@ SsPlant::execute(void)
 void
 SsPlant::loadSys(void)
 {	
+	std::string homepath = getenv("HOME");
 	std::ifstream myfile;
-	myfile.open("../ss_ctrl/params/plant_params.txt");
+	myfile.open(homepath+"/RTXI/modules/ss_modules/ss_ctrl/params/plant_params.txt");
 
 	//std::cout<<"load works here"<<"\n";
 	// numA;
