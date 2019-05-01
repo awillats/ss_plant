@@ -89,7 +89,6 @@ SsPlant::execute(void)
 {
 	double u_pre = input(0)+input(1);
 	plds::stdVec u_vec = inputVector(2);
-	
 	double u_fromvec = u_vec[0];
 
 	double u_total = u_fromvec+u_pre;
@@ -107,9 +106,6 @@ SsPlant::execute(void)
 void
 SsPlant::loadSys(void)
 {	
-	testVec = {1,2,3};
-	std::cout << "xxxx"<<testVec[2]<<"yyyy";
-
 
 	std::string homepath = getenv("HOME");
 	std::ifstream myfile;
@@ -160,8 +156,7 @@ void SsPlant::printSys(void)
 
 void SsPlant::resetSys(void)
 {
-	//plds::stdVec u_vec = inputVector(3);
-	//std::cout<<".."<<;
+
 	x << 0,0;
 	y = 0;
 	u = 0;
