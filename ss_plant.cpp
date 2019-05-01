@@ -37,8 +37,9 @@ static DefaultGUIModel::variable_t vars[] = {
   },
 
 	{
-		"y","output", DefaultGUIModel::OUTPUT,
+	    "y","output", DefaultGUIModel::OUTPUT,
 	},
+	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
   {
     "x1", "Tooltip description", DefaultGUIModel::OUTPUT,
   },
@@ -46,13 +47,14 @@ static DefaultGUIModel::variable_t vars[] = {
     "x2", "Tooltip description", DefaultGUIModel::OUTPUT,
   },
 
+
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
 	},
 	{
 		"u dist","disturbance", DefaultGUIModel::INPUT,
 	},
-	{ "vec_in", "testVec", DefaultGUIModel::INPUT | DefaultGUIModel::VECTORDOUBLE, },
+
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -88,17 +90,22 @@ void
 SsPlant::execute(void)
 {
 	double u_pre = input(0)+input(1);
-	plds::stdVec u_vec = inputVector(2);
-	double u_fromvec = u_vec[0];
+	//plds::stdVec u_vec = inputVector(2);
+	//double u_fromvec = u_vec[0];
 
-	double u_total = u_fromvec+u_pre;
+	double u_total = u_pre; //+u_fromvec
 	stepPlant(u_total);
 	setState("x1",x(0));
 	setState("x2",x(1));
 	
 	output(0) = y;
-	output(1) = x(0);
-	output(2) = x(1);
+
+	std::vector<double>xstd(x.data(),x.data()+x.size());
+
+	outputVector(1) = xstd;
+	output(2) = x(0);
+	output(3) = x(1);
+	
   return;
 }
 
