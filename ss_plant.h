@@ -34,6 +34,10 @@
 
 #include "../../../module_help/eigen/Eigen/Dense"
 
+// plds
+#include <dynCtrlEst>
+
+
 class SsPlant : public DefaultGUIModel
 {
 
@@ -56,6 +60,7 @@ private:
   double period;
 
   std::vector<double> testVec;
+  plds::stdVec testVec2;
 
 	Eigen::Matrix2d A;
 	Eigen::Vector2d B;

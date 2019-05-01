@@ -52,7 +52,7 @@ static DefaultGUIModel::variable_t vars[] = {
 	{
 		"u dist","disturbance", DefaultGUIModel::INPUT,
 	},
-	{ "A", "System Matrix", DefaultGUIModel::INPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{ "vec_in", "testVec", DefaultGUIModel::INPUT | DefaultGUIModel::VECTORDOUBLE, },
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -87,7 +87,13 @@ void SsPlant::stepPlant(double uin)
 void
 SsPlant::execute(void)
 {
-	stepPlant(input(0)+input(1));
+	double u_pre = input(0)+input(1);
+	plds::stdVec u_vec = inputVector(2);
+	
+	double u_fromvec = u_vec[0];
+
+	double u_total = u_fromvec+u_pre;
+	stepPlant(u_total);
 	setState("x1",x(0));
 	setState("x2",x(1));
 	
@@ -154,6 +160,8 @@ void SsPlant::printSys(void)
 
 void SsPlant::resetSys(void)
 {
+	//plds::stdVec u_vec = inputVector(3);
+	//std::cout<<".."<<;
 	x << 0,0;
 	y = 0;
 	u = 0;
