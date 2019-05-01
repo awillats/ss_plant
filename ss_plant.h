@@ -55,6 +55,7 @@ private:
   double some_state;
   double period;
 
+  std::vector<double> testVec;
 
 	Eigen::Matrix2d A;
 	Eigen::Vector2d B;

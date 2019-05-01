@@ -52,6 +52,7 @@ static DefaultGUIModel::variable_t vars[] = {
 	{
 		"u dist","disturbance", DefaultGUIModel::INPUT,
 	},
+	{ "A", "System Matrix", DefaultGUIModel::INPUT | DefaultGUIModel::VECTORDOUBLE, },
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -100,6 +101,10 @@ SsPlant::execute(void)
 void
 SsPlant::loadSys(void)
 {	
+	testVec = {1,2,3};
+	std::cout << "xxxx"<<testVec[2]<<"yyyy";
+
+
 	std::string homepath = getenv("HOME");
 	std::ifstream myfile;
 	myfile.open(homepath+"/RTXI/modules/ss_modules/ss_ctrl/params/plant_params.txt");
