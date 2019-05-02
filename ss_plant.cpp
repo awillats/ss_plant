@@ -21,6 +21,9 @@
  * 
  */
 
+// SWITCHED PLANT
+
+
 #include "ss_plant.h"
 #include <main_window.h>
 
@@ -54,6 +57,8 @@ static DefaultGUIModel::variable_t vars[] = {
 	{
 		"u dist","disturbance", DefaultGUIModel::INPUT,
 	},
+	{"q","state_index", DefaultGUIModel::INPUT | DefaultGUIModel::INTEGER},
+
 
 };
 
@@ -79,20 +84,40 @@ SsPlant::~SsPlant(void)
 }
 
 
+void SsPlant::switchPlant(int idx)
+{
+	if (idx==0)
+	{
+		A=A_;
+		B=B_;
+		C=C_;
+		D=D_;
+	}
+	else
+	{
+		A=A2;
+		B=B2;
+		C=C2;
+		D=D2;
+	}
+}
 void SsPlant::stepPlant(double uin)
 {
+
+	//A = As(
 	u = uin;
-	x = A*x + B*u;
-	y = C*x;
+	x = A*x + B*u; //index here
+	y = C*x; //index here
 }
 
 void
 SsPlant::execute(void)
 {
-	double u_pre = input(0)+input(1);
-	//plds::stdVec u_vec = inputVector(2);
-	//double u_fromvec = u_vec[0];
 
+	switch_idx = input(2);
+	switchPlant(switch_idx);
+
+	double u_pre = input(0)+input(1);
 	double u_total = u_pre; //+u_fromvec
 	stepPlant(u_total);
 	setState("x1",x(0));
@@ -123,24 +148,33 @@ SsPlant::loadSys(void)
 	//halp::simpleFun();
 	pullParamLine(myfile); //gets nx
 
+
 	std::vector<double> numA = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::Matrix2d> tA(numA.data(),A.rows(),A.cols());
-	A = tA;
+	Eigen::Map<Eigen::Matrix2d> tA(numA.data(),A_.rows(),A_.cols());
+	A_ = tA;
 	
 	std::vector<double> numB = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::Vector2d> tB(numB.data(),B.rows(),1);
-	B = tB;
+	Eigen::Map<Eigen::Vector2d> tB(numB.data(),B_.rows(),1);
+	B_ = tB;
 
 	std::vector<double> numC = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::RowVector2d> tC(numC.data(),1,C.cols());
-	C = tC;
+	Eigen::Map<Eigen::RowVector2d> tC(numC.data(),1,C_.cols());
+	C_ = tC;
 
 	//For some silly reason, can't load D this way
 	std::vector<double> numD = pullParamLine(myfile); 	
 	//std::cout <<"ww"<< *numD.begin()<<"ww\n";
-	D = numD[0];
+	D_ = numD[0];
 	//D = (float) numD.at(0);
 	
+
+	//hardcoding second system
+	A2=A_;
+	B2=B_;
+	C2=C_*2;
+	D2=D_;
+
+
 	myfile.close();
 /*
 	//look on stackoverflow @ initialize eigenvector with stdvector
@@ -155,18 +189,19 @@ SsPlant::loadSys(void)
 
 void SsPlant::printSys(void)
 {
-  std::cout <<"Here is the matrix A:\n" << A << "\n";
-  std::cout <<"Here is the matrix B:\n" << B << "\n";
-  std::cout <<"Here is the matrix C:\n" << C << "\n";
-  std::cout <<"Here is the matrix D:\n" << D << "\n";
+  std::cout <<"Here is the matrix A:\n" << A_ << "\n";
+  std::cout <<"Here is the matrix B:\n" << B_ << "\n";
+  std::cout <<"Here is the matrix C:\n" << C_ << "\n";
+  std::cout <<"Here is the matrix D:\n" << D_ << "\n";
 }
 
 void SsPlant::resetSys(void)
 {
 
-	x << 0,0;
+	x << 0,0;//hardcode
 	y = 0;
 	u = 0;
+	switch_idx = 0;
 }
 
 
