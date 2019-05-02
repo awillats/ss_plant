@@ -170,8 +170,8 @@ SsPlant::loadSys(void)
 
 	//hardcoding second system
 	A2=A_;
-	B2=B_;
-	C2=C_*2;
+	B2=B_*1.4;
+	C2=C_;
 	D2=D_;
 
 
