@@ -163,9 +163,7 @@ SsPlant::loadSys(void)
 
 	//For some silly reason, can't load D this way
 	std::vector<double> numD = pullParamLine(myfile); 	
-	//std::cout <<"ww"<< *numD.begin()<<"ww\n";
 	D_ = numD[0];
-	//D = (float) numD.at(0);
 	
 
 	//hardcoding second system
