@@ -149,21 +149,12 @@ SsPlant::loadSys(void)
 	pullParamLine(myfile); //gets nx
 
 
-	std::vector<double> numA = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::Matrix2d> tA(numA.data(),A_.rows(),A_.cols());
-	A_ = tA;
-	
-	std::vector<double> numB = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::Vector2d> tB(numB.data(),B_.rows(),1);
-	B_ = tB;
+	A = stdVec2EigenM(pullParamLine(myfile), A.rows(), A.cols());
+	B = stdVec2EigenV(pullParamLine(myfile), B.rows());
+	C = stdVec2EigenRV(pullParamLine(myfile), C.cols());
 
-	std::vector<double> numC = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::RowVector2d> tC(numC.data(),1,C_.cols());
-	C_ = tC;
-
-	//For some silly reason, can't load D this way
 	std::vector<double> numD = pullParamLine(myfile); 	
-	D_ = numD[0];
+	D = numD[0];
 	
 
 	//hardcoding second system
@@ -174,15 +165,7 @@ SsPlant::loadSys(void)
 
 
 	myfile.close();
-/*
-	//look on stackoverflow @ initialize eigenvector with stdvector
-	float data[] = {1,2,3,4};
-	Eigen::Map<Eigen::Vector3f> v1(data);
-	std::vector<float> data2= {1,2,3,4};
-	Eigen::Vector3f v2(data2.data());
-	std::cout<<v2<<"?\n";
-	//Eigen::Matrix2f zz;
-*/
+
 }
 
 void SsPlant::printSys(void)
@@ -208,15 +191,6 @@ SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
-
-/*
-	A << 0.9990, 0.0095,
-		-0.1903, 0.9039;
-	B << 0,
-		 0.0095;
-	C << 1,0;
-	D=0;
-*/
 
 	loadSys();
 	printSys();
