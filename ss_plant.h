@@ -66,28 +66,14 @@ private:
   double period;
 
   int switch_idx;
-  plds_adam PA;
+  plds_adam sys;
+  plds_adam sys1;
+  plds_adam sys2;
 
-/*
-Eigen::Tensor As;
-Eigen::Tensor Bs;
-Eigen::Tensor Cs;
-Eigen::Tensor Ds;
-*/
 	Eigen::Matrix2d A;
 	Eigen::Vector2d B;
 	Eigen::RowVector2d C;
 	float D;
-
-	Eigen::Matrix2d A_;
-	Eigen::Vector2d B_;
-	Eigen::RowVector2d C_;
-	float D_;
-
-	Eigen::Matrix2d A2;
-	Eigen::Vector2d B2;
-	Eigen::RowVector2d C2;
-	float D2;
 
 	Eigen::Vector2d x;
 	float y;
@@ -95,10 +81,6 @@ Eigen::Tensor Ds;
 	float u;
 
   void switchPlant(int);
-  void loadSys(void);
-  void resetSys(void);
-  void printSys(void);
-  void stepPlant(double);
   void initParameters();
 
 private slots:

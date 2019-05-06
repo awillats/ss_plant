@@ -86,28 +86,21 @@ SsPlant::~SsPlant(void)
 
 void SsPlant::switchPlant(int idx)
 {
+	x = sys.x;//snapshot current system state
+	//at the moment x is held in ss_plant and operated on
 	if (idx==0)
 	{
-		A=A_;
-		B=B_;
-		C=C_;
-		D=D_;
+	    sys = sys1;
 	}
 	else
 	{
-		A=A2;
-		B=B2;
-		C=C2;
-		D=D2;
+	    sys=sys2;
 	}
-}
-void SsPlant::stepPlant(double uin)
-{
-
-	//A = As(
-	u = uin;
-	x = A*x + B*u; //index here
-	y = C*x; //index here
+	A = sys.A;
+	B = sys.B;
+	C = sys.C;
+	D = sys.D;
+	sys.x = x; //make sure new system has up to date state
 }
 
 void
@@ -115,11 +108,12 @@ SsPlant::execute(void)
 {
 
 	switch_idx = input(2);
-	switchPlant(switch_idx);
+	switchPlant(switch_idx);//move into system class later
 
 	double u_pre = input(0)+input(1);
-	double u_total = u_pre; //+u_fromvec
-	stepPlant(u_total);
+	double u_total = u_pre;
+	sys.stepPlant(u_total);
+
 	setState("x1",x(0));
 	setState("x2",x(1));
 	
@@ -134,71 +128,18 @@ SsPlant::execute(void)
   return;
 }
 
-
-void
-SsPlant::loadSys(void)
-{	
-
-	std::string homepath = getenv("HOME");
-	std::ifstream myfile;
-	myfile.open(homepath+"/RTXI/modules/ss_modules/ss_ctrl/params/plant_params.txt");
-
-	//std::cout<<"load works here"<<"\n";
-	// numA;
-	//halp::simpleFun();
-	pullParamLine(myfile); //gets nx
-
-
-	A = stdVec2EigenM(pullParamLine(myfile), A.rows(), A.cols());
-	B = stdVec2EigenV(pullParamLine(myfile), B.rows());
-	C = stdVec2EigenRV(pullParamLine(myfile), C.cols());
-
-	std::vector<double> numD = pullParamLine(myfile); 	
-	D = numD[0];
-	
-
-	//hardcoding second system
-	A2=A_;
-	B2=B_*1.4;
-	C2=C_;
-	D2=D_;
-
-
-	myfile.close();
-
-}
-
-void SsPlant::printSys(void)
-{
-  std::cout <<"Here is the matrix A:\n" << A_ << "\n";
-  std::cout <<"Here is the matrix B:\n" << B_ << "\n";
-  std::cout <<"Here is the matrix C:\n" << C_ << "\n";
-  std::cout <<"Here is the matrix D:\n" << D_ << "\n";
-}
-
-void SsPlant::resetSys(void)
-{
-
-	x << 0,0;//hardcode
-	y = 0;
-	u = 0;
-	switch_idx = 0;
-}
-
-
 void
 SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
 
-	loadSys();
-	printSys();
-	resetSys();
+	sys = plds_adam();
+	sys1=sys;
+	sys2=sys;
+	sys2.B = sys2.B*1.4;
 
-	PA = plds_adam();
-	PA.printSys();
-
+	sys.initSys();
 }
 
 void
@@ -255,13 +196,12 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	loadSys();
-	printSys();
+	sys.initSys();
 }
 
 void
 SsPlant::bBttn_event(void)
 {
-	resetSys();
+	sys.resetSys();
 }
 
