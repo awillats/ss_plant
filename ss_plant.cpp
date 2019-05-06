@@ -106,7 +106,6 @@ void SsPlant::switchPlant(int idx)
 void
 SsPlant::execute(void)
 {
-
 	switch_idx = input(2);
 	switchPlant(switch_idx);//move into system class later
 
@@ -117,7 +116,6 @@ SsPlant::execute(void)
 	x=sys.x;
 	y=sys.y;
 	std::vector<double>xstd(x.data(),x.data()+x.size());
-
 
 	setState("x1",x(0));
 	setState("x2",x(1));

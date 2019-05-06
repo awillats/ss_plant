@@ -26,23 +26,17 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-//#include "../../../module_help/StAC_rtxi/dataFuns.h"//for pullParamLine
-#include <StAC_rtxi/dataFuns.h>
-
-//#include "help.h"
 
 #include <default_gui_model.h>
 
-#include "../../../module_help/eigen/Eigen/Dense"
-//#include "../../../module_help/eigen/unsupported/Eigen/CXX11/Tensor"
+// in module_help
+#include <eigen/Eigen/Dense>
+#include <StAC_rtxi/dataFuns.h>
 //#include <unsupported/Eigen/CXX11/Tensor>
-
 
 // plds
 #include <dynCtrlEst>
 #include <plds_adam_funs.hpp>
-
-
 
 class SsPlant : public DefaultGUIModel
 {
