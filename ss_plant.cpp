@@ -195,6 +195,10 @@ SsPlant::initParameters(void)
 	loadSys();
 	printSys();
 	resetSys();
+
+	PA = plds_adam();
+	PA.printSys();
+
 }
 
 void

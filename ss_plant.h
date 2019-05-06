@@ -39,6 +39,9 @@
 
 // plds
 #include <dynCtrlEst>
+//#include <plds_adam_funs.hpp>
+#include "/home/adam/RTXI/module_help/plds_adam/plds_adamX/plds_adamX/plds_adam_funs.hpp"
+
 
 
 class SsPlant : public DefaultGUIModel
@@ -63,6 +66,7 @@ private:
   double period;
 
   int switch_idx;
+  plds_adam PA;
 
 /*
 Eigen::Tensor As;
