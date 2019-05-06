@@ -94,7 +94,7 @@ void SsPlant::switchPlant(int idx)
 	}
 	else
 	{
-	    sys=sys2;
+	    sys = sys2;
 	}
 	A = sys.A;
 	B = sys.B;
@@ -113,13 +113,16 @@ SsPlant::execute(void)
 	double u_pre = input(0)+input(1);
 	double u_total = u_pre;
 	sys.stepPlant(u_total);
+	//offload new sys properties
+	x=sys.x;
+	y=sys.y;
+	std::vector<double>xstd(x.data(),x.data()+x.size());
+
 
 	setState("x1",x(0));
 	setState("x2",x(1));
 	
 	output(0) = y;
-
-	std::vector<double>xstd(x.data(),x.data()+x.size());
 
 	outputVector(1) = xstd;
 	output(2) = x(0);
@@ -128,6 +131,13 @@ SsPlant::execute(void)
   return;
 }
 
+
+void SsPlant::resetAllSys(void)
+{
+	sys.resetSys();
+	sys1.resetSys();
+	sys2.resetSys();
+}
 void
 SsPlant::initParameters(void)
 {
@@ -135,11 +145,11 @@ SsPlant::initParameters(void)
   some_state = 0;
 
 	sys = plds_adam();
-	sys1=sys;
-	sys2=sys;
-	sys2.B = sys2.B*1.4;
-
 	sys.initSys();
+
+	sys1 = sys;
+	sys2 = sys;
+	sys2.B = sys2.B*1.4;
 }
 
 void
@@ -196,12 +206,14 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	sys.initSys();
+	//sys.initSys();
+	initParameters();
 }
 
 void
 SsPlant::bBttn_event(void)
 {
-	sys.resetSys();
+	//sys.resetSys();
+	resetAllSys();
 }
 

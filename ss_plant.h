@@ -26,7 +26,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "../../../module_help/StAC_rtxi/dataFuns.h"//for pullParamLine
+//#include "../../../module_help/StAC_rtxi/dataFuns.h"//for pullParamLine
+#include <StAC_rtxi/dataFuns.h>
 
 //#include "help.h"
 
@@ -39,8 +40,7 @@
 
 // plds
 #include <dynCtrlEst>
-//#include <plds_adam_funs.hpp>
-#include "/home/adam/RTXI/module_help/plds_adam/plds_adamX/plds_adamX/plds_adam_funs.hpp"
+#include <plds_adam_funs.hpp>
 
 
 
@@ -81,7 +81,10 @@ private:
 	float u;
 
   void switchPlant(int);
+
+  void resetAllSys();
   void initParameters();
+
 
 private slots:
   // these are custom functions that can also be connected to events
