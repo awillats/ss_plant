@@ -43,6 +43,9 @@ static DefaultGUIModel::variable_t vars[] = {
 	    "y","output", DefaultGUIModel::OUTPUT,
 	},
 	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{
+	    "yn","output", DefaultGUIModel::OUTPUT,
+	},
   {
     "x1", "Tooltip description", DefaultGUIModel::OUTPUT,
   },
@@ -112,6 +115,8 @@ SsPlant::execute(void)
 	double u_pre = input(0)+input(1);
 	double u_total = u_pre;
 	sys.stepPlant(u_total);
+	sysn.stepPlant(u_total);
+	
 	//offload new sys properties
 	x=sys.x;
 	y=sys.y;
@@ -123,8 +128,11 @@ SsPlant::execute(void)
 	output(0) = y;
 
 	outputVector(1) = xstd;
-	output(2) = x(0);
-	output(3) = x(1);
+
+	output(2) = sysn.y;
+
+	output(3) = x(0);
+	output(4) = x(1);
 	
   return;
 }
@@ -141,16 +149,15 @@ SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
-
 	sys = plds_adam();
 	sys.initSys();
 
 
-	plds_noisy sysn = plds_noisy();
+	sysn = plds_noisy();
 	std::cout<<"n:"<<sysn.sigma;//only gets printed 
 
 
-	sys1 = sysn;
+	sys1 = sys;
 	sys2 = sys;
 	sys2.B = sys2.B*1.4;
 }
