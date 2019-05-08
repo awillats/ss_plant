@@ -145,7 +145,12 @@ SsPlant::initParameters(void)
 	sys = plds_adam();
 	sys.initSys();
 
-	sys1 = sys;
+
+	plds_noisy sysn = plds_noisy();
+	std::cout<<"n:"<<sysn.sigma;//only gets printed 
+
+
+	sys1 = sysn;
 	sys2 = sys;
 	sys2.B = sys2.B*1.4;
 }
