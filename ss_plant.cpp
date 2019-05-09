@@ -21,6 +21,9 @@
  * 
  */
 
+// SWITCHED PLANT
+
+
 #include "ss_plant.h"
 #include <main_window.h>
 
@@ -37,7 +40,11 @@ static DefaultGUIModel::variable_t vars[] = {
   },
 
 	{
-		"y","output", DefaultGUIModel::OUTPUT,
+	    "y","output", DefaultGUIModel::OUTPUT,
+	},
+	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{
+	    "yn","output", DefaultGUIModel::OUTPUT,
 	},
   {
     "x1", "Tooltip description", DefaultGUIModel::OUTPUT,
@@ -46,12 +53,16 @@ static DefaultGUIModel::variable_t vars[] = {
     "x2", "Tooltip description", DefaultGUIModel::OUTPUT,
   },
 
+
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
 	},
 	{
 		"u dist","disturbance", DefaultGUIModel::INPUT,
 	},
+	{"q","state_index", DefaultGUIModel::INPUT | DefaultGUIModel::INTEGER},
+
+
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -76,103 +87,75 @@ SsPlant::~SsPlant(void)
 }
 
 
-void SsPlant::stepPlant(double uin)
+void SsPlant::switchPlant(int idx)
 {
-	u = uin;
-	x = A*x + B*u;
-	y = C*x;
+	x = sys.x;//snapshot current system state
+	//at the moment x is held in ss_plant and operated on
+
+
+	sys = ((idx==0) ? sys1 : sys2);
+
+	A = sys.A;
+	B = sys.B;
+	C = sys.C;
+	D = sys.D;
+	sys.x = x; //make sure new system has up to date state
 }
 
 void
 SsPlant::execute(void)
 {
-	stepPlant(input(0)+input(1));
+	switch_idx = input(2);
+	switchPlant(switch_idx);//move into system class later
+
+	double u_pre = input(0)+input(1);
+	double u_total = u_pre;
+	sys.stepPlant(u_total);
+	sysn.stepPlant(u_total);
+	
+	//offload new sys properties
+	x=sys.x;
+	y=sys.y;
+	std::vector<double>xstd(x.data(),x.data()+x.size());
+
 	setState("x1",x(0));
 	setState("x2",x(1));
 	
 	output(0) = y;
-	output(1) = x(0);
-	output(2) = x(1);
+
+	outputVector(1) = xstd;
+
+	output(2) = sysn.y;
+
+	output(3) = x(0);
+	output(4) = x(1);
+	
   return;
 }
 
 
-void
-SsPlant::loadSys(void)
-{	
-	std::string homepath = getenv("HOME");
-	std::ifstream myfile;
-	myfile.open(homepath+"/RTXI/modules/ss_modules/ss_ctrl/params/plant_params.txt");
-
-	//std::cout<<"load works here"<<"\n";
-	// numA;
-	//halp::simpleFun();
-	pullParamLine(myfile); //gets nx
-
-	std::vector<double> numA = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::Matrix2d> tA(numA.data(),A.rows(),A.cols());
-	A = tA;
-	
-	std::vector<double> numB = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::Vector2d> tB(numB.data(),B.rows(),1);
-	B = tB;
-
-	std::vector<double> numC = pullParamLine(myfile); 	
-	Eigen::Map<Eigen::RowVector2d> tC(numC.data(),1,C.cols());
-	C = tC;
-
-	//For some silly reason, can't load D this way
-	std::vector<double> numD = pullParamLine(myfile); 	
-	//std::cout <<"ww"<< *numD.begin()<<"ww\n";
-	D = numD[0];
-	//D = (float) numD.at(0);
-	
-	myfile.close();
-/*
-	//look on stackoverflow @ initialize eigenvector with stdvector
-	float data[] = {1,2,3,4};
-	Eigen::Map<Eigen::Vector3f> v1(data);
-	std::vector<float> data2= {1,2,3,4};
-	Eigen::Vector3f v2(data2.data());
-	std::cout<<v2<<"?\n";
-	//Eigen::Matrix2f zz;
-*/
-}
-
-void SsPlant::printSys(void)
+void SsPlant::resetAllSys(void)
 {
-  std::cout <<"Here is the matrix A:\n" << A << "\n";
-  std::cout <<"Here is the matrix B:\n" << B << "\n";
-  std::cout <<"Here is the matrix C:\n" << C << "\n";
-  std::cout <<"Here is the matrix D:\n" << D << "\n";
+	sys.resetSys();
+	sys1.resetSys();
+	sys2.resetSys();
 }
-
-void SsPlant::resetSys(void)
-{
-	x << 0,0;
-	y = 0;
-	u = 0;
-}
-
-
 void
 SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
+	sys = plds_adam();
+	sys.initSys();
 
-/*
-	A << 0.9990, 0.0095,
-		-0.1903, 0.9039;
-	B << 0,
-		 0.0095;
-	C << 1,0;
-	D=0;
-*/
 
-	loadSys();
-	printSys();
-	resetSys();
+	sysn = plds_noisy();
+	std::cout<<"n:"<<sysn.sigma;//only gets printed 
+
+
+	sys1 = sys;
+	sys2 = sys;
+	sys2.B = sys2.B*1.4;
 }
 
 void
@@ -229,13 +212,14 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	loadSys();
-	printSys();
+	//sys.initSys();
+	initParameters();
 }
 
 void
 SsPlant::bBttn_event(void)
 {
-	resetSys();
+	//sys.resetSys();
+	resetAllSys();
 }
 

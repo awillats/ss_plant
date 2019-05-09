@@ -1,12 +1,21 @@
 PLUGIN_NAME = ss_plant
 
-HEADERS = ss_plant.h
+
+HELP_DIR=/home/adam/RTXI/module_help
+PLDS_DIR=$(HELP_DIR)/plds_adam/plds_adamX/plds_adamX
+
+HEADERS = ss_plant.h\
+	$(PLDS_DIR)/plds_adam_funs.hpp
 
 SOURCES = ss_plant.cpp\
           moc_ss_plant.cpp\
-		  ../../../module_help/StAC_rtxi/dataFuns.cpp\
+	  $(HELP_DIR)/StAC_rtxi/dataFuns.cpp\
+	  $(PLDS_DIR)/plds_adam_funs.cpp
 
 LIBS = 
+
+CXXFLAGS += -I$(HELP_DIR)
+CXXFLAGS += -I$(PLDS_DIR)
 
 ### Do not edit below this line ###
 
