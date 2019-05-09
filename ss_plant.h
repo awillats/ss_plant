@@ -26,17 +26,13 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include "../../../module_help/StAC_rtxi/dataFuns.h"//for pullParamLine
+
+//#include "help.h"
 
 #include <default_gui_model.h>
 
-// in module_help
-#include <eigen/Eigen/Dense>
-#include <StAC_rtxi/dataFuns.h>
-//#include <unsupported/Eigen/CXX11/Tensor>
-
-// plds
-#include <dynCtrlEst>
-#include <plds_adam_funs.hpp>
+#include "../../../module_help/eigen/Eigen/Dense"
 
 class SsPlant : public DefaultGUIModel
 {
@@ -59,11 +55,6 @@ private:
   double some_state;
   double period;
 
-  int switch_idx;
-  plds_adam sys;
-  plds_adam sys1;
-  plds_adam sys2;
-plds_noisy sysn;
 
 	Eigen::Matrix2d A;
 	Eigen::Vector2d B;
@@ -75,11 +66,11 @@ plds_noisy sysn;
 
 	float u;
 
-  void switchPlant(int);
-
-  void resetAllSys();
+  void loadSys(void);
+  void resetSys(void);
+  void printSys(void);
+  void stepPlant(double);
   void initParameters();
-
 
 private slots:
   // these are custom functions that can also be connected to events
