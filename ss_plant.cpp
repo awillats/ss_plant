@@ -150,7 +150,7 @@ SsPlant::initParameters(void)
 	sys = plds_adam();
 	sys.initSys();
 
-	sysn = plds_noisy();
+	sysn = glds_adam();
 	sysn.printSys();
 
 	sys1 = sys;
