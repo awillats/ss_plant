@@ -119,15 +119,13 @@ SsPlant::execute(void)
 	//offload new sys properties
 	x=sys.x;
 	y=sys.y;
-	std::vector<double>xstd = arma::conv_to<stdVec>::from(x);
-//(x.data(),x.data()+x.size());
 
 	setState("x1",x(0));
 	setState("x2",x(1));
 	
 	output(0) = y;
 
-	outputVector(1) = xstd;
+	outputVector(1) = arma::conv_to<stdVec>::from(x);//xstd;
 
 	output(2) = sysn.y;
 
@@ -152,10 +150,8 @@ SsPlant::initParameters(void)
 	sys = plds_adam();
 	sys.initSys();
 
-
 	sysn = plds_noisy();
 	std::cout<<"n:"<<sysn.sigma;//only gets printed 
-
 
 	sys1 = sys;
 	sys2 = sys;

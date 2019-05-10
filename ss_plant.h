@@ -63,7 +63,8 @@ private:
   plds_adam sys;
   plds_adam sys1;
   plds_adam sys2;
-plds_noisy sysn;
+  
+  plds_noisy sysn;
 
         adam::Mat A; //Eigen::Matrix2d A;
         adam::Vec B; //Eigen::Vector2d B;
