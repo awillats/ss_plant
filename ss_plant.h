@@ -65,12 +65,12 @@ private:
   plds_adam sys2;
   
   glds_adam sysn;
-
+/*
         adam::Mat A; //Eigen::Matrix2d A;
         adam::Vec B; //Eigen::Vector2d B;
         adam::RowVec C; //Eigen::RowVector2d C; 
         adam::data_t D; 
-    
+ */   
         adam::Vec x;
         adam::data_t y;
         adam::data_t u;

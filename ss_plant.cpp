@@ -92,17 +92,14 @@ SsPlant::~SsPlant(void)
 
 void SsPlant::switchPlant(int idx)
 {
-	x = sys.x;//snapshot current system state
-	//at the moment x is held in ss_plant and operated on
-
-
+	x = sys.x;
 	sys = ((idx==0) ? sys1 : sys2);
-
-	A = sys.A;
-	B = sys.B;
-	C = sys.C;
-	D = sys.D;
 	sys.x = x; //make sure new system has up to date state
+
+	//A = sys.A;
+	//B = sys.B;
+	//C = sys.C;
+	//D = sys.D;
 }
 
 void
