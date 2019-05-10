@@ -17,6 +17,14 @@ LIBS =
 CXXFLAGS += -I$(HELP_DIR)
 CXXFLAGS += -I$(PLDS_DIR)
 
+
+
+# dynCtrlEst
+include Makefile.include_plds
+
+# armadillo
+include Makefile.include_arm
+
 ### Do not edit below this line ###
 
 include $(shell rtxi_plugin_config --pkgdata-dir)/Makefile.plugin_compile
