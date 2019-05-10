@@ -27,6 +27,9 @@
 #include "ss_plant.h"
 #include <main_window.h>
 
+using namespace adam;//plds stuff
+
+
 extern "C" Plugin::Object*
 createRTXIPlugin(void)
 {
@@ -116,7 +119,8 @@ SsPlant::execute(void)
 	//offload new sys properties
 	x=sys.x;
 	y=sys.y;
-	std::vector<double>xstd(x.data(),x.data()+x.size());
+	std::vector<double>xstd = arma::conv_to<stdVec>::from(x);
+//(x.data(),x.data()+x.size());
 
 	setState("x1",x(0));
 	setState("x2",x(1));

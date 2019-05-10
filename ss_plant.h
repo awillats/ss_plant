@@ -65,15 +65,14 @@ private:
   plds_adam sys2;
 plds_noisy sysn;
 
-	Eigen::Matrix2d A;
-	Eigen::Vector2d B;
-	Eigen::RowVector2d C;
-	float D;
-
-	Eigen::Vector2d x;
-	float y;
-
-	float u;
+        adam::Mat A; //Eigen::Matrix2d A;
+        adam::Vec B; //Eigen::Vector2d B;
+        adam::RowVec C; //Eigen::RowVector2d C; 
+        adam::data_t D; 
+    
+        adam::Vec x;
+        adam::data_t y;
+        adam::data_t u;
 
   void switchPlant(int);
 
