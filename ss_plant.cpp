@@ -96,6 +96,9 @@ void SsPlant::switchPlant(int idx)
 	sys = ((idx==0) ? sys1 : sys2);
 	sys.x = x; //make sure new system has up to date state
 
+
+	multi_sys.switchSys(idx);
+
 	//A = sys.A;
 	//B = sys.B;
 	//C = sys.C;
@@ -153,6 +156,10 @@ SsPlant::initParameters(void)
 	sys1 = sys;
 	sys2 = sys;
 	sys2.B = sys2.B*1.4;
+
+
+	multi_sys = slds();
+
 }
 
 void
