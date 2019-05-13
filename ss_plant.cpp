@@ -144,7 +144,7 @@ SsPlant::initParameters(void)
 {
   some_parameter = 0;
   some_state = 0;
-	sys = plds_adam();
+	sys = lds_adam();
 	sys.initSys();
 
 	sysn = glds_adam();

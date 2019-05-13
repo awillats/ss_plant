@@ -60,9 +60,9 @@ private:
   double period;
 
   int switch_idx;
-  plds_adam sys;
-  plds_adam sys1;
-  plds_adam sys2;
+  lds_adam sys;
+  lds_adam sys1;
+  lds_adam sys2;
   
   glds_adam sysn;
 /*
