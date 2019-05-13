@@ -159,6 +159,10 @@ SsPlant::initParameters(void)
 
 
 	multi_sys = slds();
+	multi_sys.switchSys((int)0);
+	multi_sys.switchSys(1);
+	multi_sys.switchSys(-1);
+	multi_sys.switchSys(2);
 
 }
 
