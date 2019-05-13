@@ -61,12 +61,7 @@ private:
 
   int switch_idx;
   lds_adam sys;
-  lds_adam sys1;
-  lds_adam sys2;
-  
-  glds_adam sysn;
   slds multi_sys;
-
 
 /*
         adam::Mat A; //Eigen::Matrix2d A;
@@ -78,7 +73,6 @@ private:
         adam::data_t y;
         adam::data_t u;
 
-  void switchPlant(int);
 
   void resetAllSys();
   void initParameters();
