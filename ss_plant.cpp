@@ -113,8 +113,10 @@ SsPlant::execute(void)
 
 	double u_pre = input(0)+input(1);
 	double u_total = u_pre;
+
 	sys.stepPlant(u_total);
 	sysn.stepPlant(u_total);
+	multi_sys.stepPlant(u_total);
 	
 	//offload new sys properties
 	x=sys.x;
@@ -127,7 +129,7 @@ SsPlant::execute(void)
 
 	outputVector(1) = arma::conv_to<stdVec>::from(x);//xstd;
 
-	output(2) = sysn.y;
+	output(2) = multi_sys.y;
 
 	output(3) = x(0);
 	output(4) = x(1);
@@ -141,6 +143,7 @@ void SsPlant::resetAllSys(void)
 	sys.resetSys();
 	sys1.resetSys();
 	sys2.resetSys();
+	multi_sys.resetSys();
 }
 void
 SsPlant::initParameters(void)
@@ -157,13 +160,7 @@ SsPlant::initParameters(void)
 	sys2 = sys;
 	sys2.B = sys2.B*1.4;
 
-
 	multi_sys = slds();
-	multi_sys.switchSys((int)0);
-	multi_sys.switchSys(1);
-	multi_sys.switchSys(-1);
-	multi_sys.switchSys(2);
-
 }
 
 void
