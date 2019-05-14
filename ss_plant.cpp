@@ -49,13 +49,6 @@ static DefaultGUIModel::variable_t vars[] = {
 	{
 	    "yn","output", DefaultGUIModel::OUTPUT,
 	},
-  {
-    "x1", "Tooltip description", DefaultGUIModel::OUTPUT,
-  },
-  {
-    "x2", "Tooltip description", DefaultGUIModel::OUTPUT,
-  },
-
 
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
@@ -105,18 +98,12 @@ SsPlant::execute(void)
 	//offload new sys properties
 	x=sys.x;
 	y=sys.y;
-
-	setState("x1",x(0));
-	setState("x2",x(1));
 	
 	output(0) = y;
 
 	outputVector(1) = arma::conv_to<stdVec>::from(x);//xstd;
 
 	output(2) = multi_sys.y;
-
-	output(3) = x(0);
-	output(4) = x(1);
 	
   return;
 }
@@ -130,10 +117,8 @@ void SsPlant::resetAllSys(void)
 void
 SsPlant::initParameters(void)
 {
-  some_parameter = 0;
-  some_state = 0;
-	sys = lds_adam();
-	multi_sys = slds();
+    sys = lds_adam();
+    multi_sys = slds();
 }
 
 void
@@ -142,12 +127,9 @@ SsPlant::update(DefaultGUIModel::update_flags_t flag)
   switch (flag) {
     case INIT:
       period = RT::System::getInstance()->getPeriod() * 1e-6; // ms
-      setParameter("GUI label", some_parameter);
-      //setState("A State", some_state);
       break;
 
     case MODIFY:
-      some_parameter = getParameter("GUI label").toDouble();
       break;
 
     case UNPAUSE:
@@ -190,14 +172,12 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	//sys.initSys();
 	initParameters();
 }
 
 void
 SsPlant::bBttn_event(void)
 {
-	//sys.resetSys();
 	resetAllSys();
 }
 

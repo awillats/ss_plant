@@ -55,8 +55,6 @@ protected:
   virtual void update(DefaultGUIModel::update_flags_t);
 
 private:
-  double some_parameter;
-  double some_state;
   double period;
 
   int switch_idx;
@@ -72,7 +70,6 @@ private:
         adam::Vec x;
         adam::data_t y;
         adam::data_t u;
-
 
   void resetAllSys();
   void initParameters();
