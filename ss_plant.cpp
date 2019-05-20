@@ -42,13 +42,13 @@ static DefaultGUIModel::variable_t vars[] = {
     DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE,
   },
 
-	{
-	    "y","output", DefaultGUIModel::OUTPUT,
-	},
+	{ "y","output", DefaultGUIModel::OUTPUT,},
+	{ "y_gauss","output", DefaultGUIModel::OUTPUT,},
+	{ "y_switch","output", DefaultGUIModel::OUTPUT,},
+
 	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
-	{
-	    "yn","output", DefaultGUIModel::OUTPUT,
-	},
+	{ "X_gauss", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{ "X_switch", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
@@ -93,6 +93,7 @@ SsPlant::execute(void)
 	double u_total = u_pre;
 
 	sys.stepPlant(u_total);
+	gsys.stepPlant(u_total);
 	multi_sys.stepPlant(u_total);
 	
 	//offload new sys properties
@@ -100,11 +101,12 @@ SsPlant::execute(void)
 	y=sys.y;
 	
 	output(0) = y;
-
-	outputVector(1) = arma::conv_to<stdVec>::from(x);//xstd;
-
+	output(1) = gsys.y;
 	output(2) = multi_sys.y;
-	
+
+	outputVector(3) = arma::conv_to<stdVec>::from(x);
+	outputVector(4) = arma::conv_to<stdVec>::from(gsys.x);
+	outputVector(5) = arma::conv_to<stdVec>::from(multi_sys.x);
   return;
 }
 
@@ -112,12 +114,14 @@ SsPlant::execute(void)
 void SsPlant::resetAllSys(void)
 {
 	sys.resetSys();
+	gsys.resetSys();
 	multi_sys.resetSys();
 }
 void
 SsPlant::initParameters(void)
 {
     sys = lds_adam();
+    gsys = glds_adam();
     multi_sys = slds();
 }
 
