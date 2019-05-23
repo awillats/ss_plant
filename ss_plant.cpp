@@ -124,7 +124,7 @@ SsPlant::initParameters(void)
     gsys = glds_adam();
     multi_sys = slds();
 
-	std::cout<<"XXXX"<<gsys.R;
+	//std::cout<<"XXXX"<<gsys.R;
 
 	//std::cout<<gsys.Q;
 	//std::cout<<multi_sys.Q;
