@@ -60,6 +60,7 @@ private:
   int switch_idx;
   lds_adam sys;
   glds_adam gsys;
+  plds_adam psys;
   slds multi_sys;
 
 /*
