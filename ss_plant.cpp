@@ -91,6 +91,7 @@ SsPlant::execute(void)
 {
 	switch_idx = input(2);
 	multi_sys.switchSys(switch_idx);//move into system class later
+	multi_psys.switchSys(switch_idx);
 
 	double u_pre = input(0)+input(1);
 	double u_total = u_pre;
@@ -135,16 +136,20 @@ SsPlant::initParameters(void)
     double period_in_s = (RT::System::getInstance()->getPeriod())*1e-9;
     psys = plds_adam();psys.setDt(period_in_s);
 
-    psys.stepPlant(100);
-    psys.stepPlant(100);
-    psys.stepPlant(100);
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
 
+    multi_psys = splds();
+
+/*
+    psys.stepPlant(100);
+    psys.stepPlant(100);
+    psys.stepPlant(100);
+    psys.spike();
+    psys.spike();
+    psys.spike();
+    psys.spike();
+    psys.spike();
+    psys.spike();
+*/
 
 
 	//std::cout<<"XXXX"<<gsys.R;

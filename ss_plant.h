@@ -61,8 +61,9 @@ private:
   lds_adam sys;
   glds_adam gsys;
   plds_adam psys;
-  slds multi_sys;
 
+  slds multi_sys;
+  splds multi_psys;
 /*
         adam::Mat A; //Eigen::Matrix2d A;
         adam::Vec B; //Eigen::Vector2d B;
