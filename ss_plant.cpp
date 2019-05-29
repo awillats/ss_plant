@@ -46,13 +46,18 @@ static DefaultGUIModel::variable_t vars[] = {
 	{ "y_gauss","output", DefaultGUIModel::OUTPUT,},
 	{ "y_switch","output", DefaultGUIModel::OUTPUT,},
 
-	{"y_poisson",".", DefaultGUIModel::OUTPUT,},
+	{"exp(y)_poisson",".", DefaultGUIModel::OUTPUT,},
 	{"spikes",".", DefaultGUIModel::OUTPUT,},
+	{"exp(y)_poisson_switch","",DefaultGUIModel::OUTPUT,},
+	{"switch_spikes",".",DefaultGUIModel::OUTPUT,},
 
 	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 	{ "X_gauss", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{"X_poiss" , ".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 	{ "X_switch", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
-
+	{ "X_switch_p",".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE},
+	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process	
+	
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
 	},
@@ -101,6 +106,7 @@ SsPlant::execute(void)
 	multi_sys.stepPlant(u_total);
 	
 	psys.stepPlant(u_total);
+	multi_psys.stepPlant(u_total);
 	
 	//offload new sys properties
 	x=sys.x;
@@ -113,9 +119,17 @@ SsPlant::execute(void)
 	output(3) = psys.y_nl;
 	output(4) = psys.z;
 
-	outputVector(4) = arma::conv_to<stdVec>::from(x);
-	outputVector(5) = arma::conv_to<stdVec>::from(gsys.x);
-	outputVector(6) = arma::conv_to<stdVec>::from(multi_sys.x);
+	output(5) = multi_psys.y_nl;
+	output(6) = multi_psys.z;
+
+	
+
+	outputVector(7) = arma::conv_to<stdVec>::from(x);
+	outputVector(8) = arma::conv_to<stdVec>::from(gsys.x);
+	outputVector(9) = arma::conv_to<stdVec>::from(psys.x);
+
+	outputVector(10) = arma::conv_to<stdVec>::from(multi_sys.x);
+	outputVector(11) = arma::conv_to<stdVec>::from(multi_psys.x);
   return;
 }
 
