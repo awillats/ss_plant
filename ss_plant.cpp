@@ -144,32 +144,16 @@ void
 SsPlant::initParameters(void)
 {
     sys = lds_adam();
+/*
     gsys = glds_adam();
     multi_sys = slds();
 
     double period_in_s = (RT::System::getInstance()->getPeriod())*1e-9;
     psys = plds_adam();psys.setDt(period_in_s);
-
-
     multi_psys = splds();
-
-/*
-    psys.stepPlant(100);
-    psys.stepPlant(100);
-    psys.stepPlant(100);
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
 */
-
-
-	//std::cout<<"XXXX"<<gsys.R;
-
-	//std::cout<<gsys.Q;
-	//std::cout<<multi_sys.Q;
+    sys.augment4PI();
+	std::cout<<"\ndid this update??????\n";
 }
 
 void
