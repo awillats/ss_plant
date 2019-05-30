@@ -27,6 +27,9 @@
 #include "ss_plant.h"
 #include <main_window.h>
 
+using namespace adam;//plds stuff
+
+
 extern "C" Plugin::Object*
 createRTXIPlugin(void)
 {
@@ -39,21 +42,22 @@ static DefaultGUIModel::variable_t vars[] = {
     DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE,
   },
 
-	{
-	    "y","output", DefaultGUIModel::OUTPUT,
-	},
+	{ "y","output", DefaultGUIModel::OUTPUT,},
+	{ "y_gauss","output", DefaultGUIModel::OUTPUT,},
+	{ "y_switch","output", DefaultGUIModel::OUTPUT,},
+
+	{"exp(y)_poisson",".", DefaultGUIModel::OUTPUT,},
+	{"spikes",".", DefaultGUIModel::OUTPUT,},
+	{"exp(y)_poisson_switch","",DefaultGUIModel::OUTPUT,},
+	{"switch_spikes",".",DefaultGUIModel::OUTPUT,},
+
 	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
-	{
-	    "yn","output", DefaultGUIModel::OUTPUT,
-	},
-  {
-    "x1", "Tooltip description", DefaultGUIModel::OUTPUT,
-  },
-  {
-    "x2", "Tooltip description", DefaultGUIModel::OUTPUT,
-  },
-
-
+	{ "X_gauss", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{"X_poiss" , ".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{ "X_switch", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{ "X_switch_p",".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE},
+	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process	
+	
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
 	},
@@ -87,49 +91,45 @@ SsPlant::~SsPlant(void)
 }
 
 
-void SsPlant::switchPlant(int idx)
-{
-	x = sys.x;//snapshot current system state
-	//at the moment x is held in ss_plant and operated on
-
-
-	sys = ((idx==0) ? sys1 : sys2);
-
-	A = sys.A;
-	B = sys.B;
-	C = sys.C;
-	D = sys.D;
-	sys.x = x; //make sure new system has up to date state
-}
-
 void
 SsPlant::execute(void)
 {
 	switch_idx = input(2);
-	switchPlant(switch_idx);//move into system class later
+	multi_sys.switchSys(switch_idx);//move into system class later
+	multi_psys.switchSys(switch_idx);
 
 	double u_pre = input(0)+input(1);
 	double u_total = u_pre;
+
 	sys.stepPlant(u_total);
-	sysn.stepPlant(u_total);
+	gsys.stepPlant(u_total);
+	multi_sys.stepPlant(u_total);
+	
+	psys.stepPlant(u_total);
+	multi_psys.stepPlant(u_total);
 	
 	//offload new sys properties
 	x=sys.x;
 	y=sys.y;
-	std::vector<double>xstd(x.data(),x.data()+x.size());
-
-	setState("x1",x(0));
-	setState("x2",x(1));
 	
 	output(0) = y;
+	output(1) = gsys.y;
+	output(2) = multi_sys.y;
 
-	outputVector(1) = xstd;
+	output(3) = psys.y_nl;
+	output(4) = psys.z;
 
-	output(2) = sysn.y;
+	output(5) = multi_psys.y_nl;
+	output(6) = multi_psys.z;
 
-	output(3) = x(0);
-	output(4) = x(1);
 	
+
+	outputVector(7) = arma::conv_to<stdVec>::from(x);
+	outputVector(8) = arma::conv_to<stdVec>::from(gsys.x);
+	outputVector(9) = arma::conv_to<stdVec>::from(psys.x);
+
+	outputVector(10) = arma::conv_to<stdVec>::from(multi_sys.x);
+	outputVector(11) = arma::conv_to<stdVec>::from(multi_psys.x);
   return;
 }
 
@@ -137,25 +137,39 @@ SsPlant::execute(void)
 void SsPlant::resetAllSys(void)
 {
 	sys.resetSys();
-	sys1.resetSys();
-	sys2.resetSys();
+	gsys.resetSys();
+	multi_sys.resetSys();
 }
 void
 SsPlant::initParameters(void)
 {
-  some_parameter = 0;
-  some_state = 0;
-	sys = plds_adam();
-	sys.initSys();
+    sys = lds_adam();
+    gsys = glds_adam();
+    multi_sys = slds();
+
+    double period_in_s = (RT::System::getInstance()->getPeriod())*1e-9;
+    psys = plds_adam();psys.setDt(period_in_s);
 
 
-	sysn = plds_noisy();
-	std::cout<<"n:"<<sysn.sigma;//only gets printed 
+    multi_psys = splds();
+
+/*
+    psys.stepPlant(100);
+    psys.stepPlant(100);
+    psys.stepPlant(100);
+    psys.spike();
+    psys.spike();
+    psys.spike();
+    psys.spike();
+    psys.spike();
+    psys.spike();
+*/
 
 
-	sys1 = sys;
-	sys2 = sys;
-	sys2.B = sys2.B*1.4;
+	//std::cout<<"XXXX"<<gsys.R;
+
+	//std::cout<<gsys.Q;
+	//std::cout<<multi_sys.Q;
 }
 
 void
@@ -164,12 +178,9 @@ SsPlant::update(DefaultGUIModel::update_flags_t flag)
   switch (flag) {
     case INIT:
       period = RT::System::getInstance()->getPeriod() * 1e-6; // ms
-      setParameter("GUI label", some_parameter);
-      //setState("A State", some_state);
       break;
 
     case MODIFY:
-      some_parameter = getParameter("GUI label").toDouble();
       break;
 
     case UNPAUSE:
@@ -212,14 +223,12 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	//sys.initSys();
 	initParameters();
 }
 
 void
 SsPlant::bBttn_event(void)
 {
-	//sys.resetSys();
 	resetAllSys();
 }
 

@@ -55,27 +55,24 @@ protected:
   virtual void update(DefaultGUIModel::update_flags_t);
 
 private:
-  double some_parameter;
-  double some_state;
   double period;
 
   int switch_idx;
-  plds_adam sys;
-  plds_adam sys1;
-  plds_adam sys2;
-plds_noisy sysn;
+  lds_adam sys;
+  glds_adam gsys;
+  plds_adam psys;
 
-	Eigen::Matrix2d A;
-	Eigen::Vector2d B;
-	Eigen::RowVector2d C;
-	float D;
-
-	Eigen::Vector2d x;
-	float y;
-
-	float u;
-
-  void switchPlant(int);
+  slds multi_sys;
+  splds multi_psys;
+/*
+        adam::Mat A; //Eigen::Matrix2d A;
+        adam::Vec B; //Eigen::Vector2d B;
+        adam::RowVec C; //Eigen::RowVector2d C; 
+        adam::data_t D; 
+ */   
+        adam::Vec x;
+        adam::data_t y;
+        adam::data_t u;
 
   void resetAllSys();
   void initParameters();
