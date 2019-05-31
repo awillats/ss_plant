@@ -92,6 +92,7 @@ void
 SsPlant::execute(void)
 {
 	switch_idx = input(2);
+
 	multi_sys.switchSys(switch_idx);//move into system class later
 	multi_psys.switchSys(switch_idx);
 
