@@ -58,13 +58,10 @@ static DefaultGUIModel::variable_t vars[] = {
 	{ "X_switch_p",".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE},
 	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process	
 	
-	{
-		"ustim","input", DefaultGUIModel::INPUT,
-	},
-	{
-		"u dist","disturbance", DefaultGUIModel::INPUT,
-	},
+	{"ustim","input", DefaultGUIModel::INPUT,},
+	{"u dist","disturbance", DefaultGUIModel::INPUT,},
 	{"q","state_index", DefaultGUIModel::INPUT | DefaultGUIModel::INTEGER},
+	{"r","reference", DefaultGUIModel::INPUT,},
 
 
 };
@@ -100,8 +97,9 @@ SsPlant::execute(void)
 
 	double u_pre = input(0)+input(1);
 	double u_total = u_pre;
+	double r = input(3);
 
-	sys.stepPlant(u_total);
+	sys.stepPlant(u_total,r);
 	gsys.stepPlant(u_total);
 	multi_sys.stepPlant(u_total);
 	
@@ -152,8 +150,14 @@ SsPlant::initParameters(void)
     psys = plds_adam();psys.setDt(period_in_s);
     multi_psys = splds();
 */
+
     sys.augment4PI();
-	std::cout<<"\ndid this update??????\n";
+/*
+	sys.stepPlant(1,1);
+	sys.stepPlant(1,1);
+	sys.stepPlant(1,1);
+*/
+	std::cout<<"\ndid this update?!????\n";
 }
 
 void
