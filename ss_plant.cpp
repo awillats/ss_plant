@@ -41,20 +41,22 @@ static DefaultGUIModel::variable_t vars[] = {
     "State-space plant", "Tooltip description",
     DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE,
   },
-
+/*
 	{ "y","output", DefaultGUIModel::OUTPUT,},
 	{ "y_gauss","output", DefaultGUIModel::OUTPUT,},
 	{ "y_switch","output", DefaultGUIModel::OUTPUT,},
 
 	{"exp(y)_poisson",".", DefaultGUIModel::OUTPUT,},
 	{"spikes",".", DefaultGUIModel::OUTPUT,},
+*/
 	{"exp(y)_poisson_switch","",DefaultGUIModel::OUTPUT,},
 	{"switch_spikes",".",DefaultGUIModel::OUTPUT,},
-
+/*
 	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 	{ "X_gauss", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 	{"X_poiss" , ".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 	{ "X_switch", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+*/
 	{ "X_switch_p",".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE},
 	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process	
 	
@@ -95,81 +97,69 @@ void
 SsPlant::execute(void)
 {
 	switch_idx = input(2);
-	multi_sys.switchSys(switch_idx);//move into system class later
+	//multi_sys.switchSys(switch_idx);//move into system class later
 	multi_psys.switchSys(switch_idx);
 
 	double u_pre = input(0)+input(1);
 	double u_total = u_pre;
 
+/*
 	sys.stepPlant(u_total);
 	gsys.stepPlant(u_total);
 	multi_sys.stepPlant(u_total);
 	
 	psys.stepPlant(u_total);
+*/
 	multi_psys.stepPlant(u_total);
 	
 	//offload new sys properties
-	x=sys.x;
-	y=sys.y;
+	x=multi_psys.x;
+	y=multi_psys.y;
 	
+/*
 	output(0) = y;
 	output(1) = gsys.y;
 	output(2) = multi_sys.y;
 
 	output(3) = psys.y_nl;
 	output(4) = psys.z;
-
-	output(5) = multi_psys.y_nl;
-	output(6) = multi_psys.z;
+*/
+	output(0) = multi_psys.y_nl;
+	output(1) = multi_psys.z;
 
 	
-
+/*
 	outputVector(7) = arma::conv_to<stdVec>::from(x);
 	outputVector(8) = arma::conv_to<stdVec>::from(gsys.x);
 	outputVector(9) = arma::conv_to<stdVec>::from(psys.x);
 
 	outputVector(10) = arma::conv_to<stdVec>::from(multi_sys.x);
-	outputVector(11) = arma::conv_to<stdVec>::from(multi_psys.x);
+*/
+	outputVector(2) = arma::conv_to<stdVec>::from(multi_psys.x);
   return;
 }
 
 
 void SsPlant::resetAllSys(void)
 {
-	sys.resetSys();
-	gsys.resetSys();
-	multi_sys.resetSys();
+	//sys.resetSys();
+	//gsys.resetSys();
+	//multi_sys.resetSys();
+	multi_psys.resetSys();
 }
 void
 SsPlant::initParameters(void)
 {
+/*
     sys = lds_adam();
     gsys = glds_adam();
     multi_sys = slds();
-
+*/
     double period_in_s = (RT::System::getInstance()->getPeriod())*1e-9;
-    psys = plds_adam();psys.setDt(period_in_s);
+ //   psys = plds_adam();psys.setDt(period_in_s);
 
 
     multi_psys = splds();
-
-/*
-    psys.stepPlant(100);
-    psys.stepPlant(100);
-    psys.stepPlant(100);
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
-    psys.spike();
-*/
-
-
-	//std::cout<<"XXXX"<<gsys.R;
-
-	//std::cout<<gsys.Q;
-	//std::cout<<multi_sys.Q;
 }
 
 void

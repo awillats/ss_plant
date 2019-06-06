@@ -35,7 +35,7 @@
 //#include <unsupported/Eigen/CXX11/Tensor>
 
 // plds
-#include <dynCtrlEst>
+	//#include <dynCtrlEst>
 #include <plds_adam_funs.hpp>
 
 class SsPlant : public DefaultGUIModel
@@ -58,11 +58,13 @@ private:
   double period;
 
   int switch_idx;
+/*
   lds_adam sys;
   glds_adam gsys;
   plds_adam psys;
 
   slds multi_sys;
+*/
   splds multi_psys;
 /*
         adam::Mat A; //Eigen::Matrix2d A;

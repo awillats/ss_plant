@@ -20,7 +20,7 @@ CXXFLAGS += -I$(PLDS_DIR)
 
 
 # dynCtrlEst
-include Makefile.include_plds
+#include Makefile.include_plds
 
 # armadillo
 include Makefile.include_arm
