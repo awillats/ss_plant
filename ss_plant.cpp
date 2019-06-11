@@ -153,7 +153,7 @@ SsPlant::initParameters(void)
 */
 
     sys.augment4PI();
-
+	std::cout<<"SIZE"<<sys.x.size();
 /*
 	sys.stepPlant(1,1);
 	sys.stepPlant(1,1);
