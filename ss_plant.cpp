@@ -100,7 +100,7 @@ SsPlant::execute(void)
 	double u_total = u_pre;
 	double r = input(3);
 
-	sys.stepPlant(u_total,r);
+	sys.stepPlant(u_total,r); //needs r for the aug method
 	gsys.stepPlant(u_total);
 	multi_sys.stepPlant(u_total);
 	
@@ -153,12 +153,15 @@ SsPlant::initParameters(void)
 */
 
     sys.augment4PI();
+
 /*
 	sys.stepPlant(1,1);
 	sys.stepPlant(1,1);
 	sys.stepPlant(1,1);
+
 */
-	std::cout<<"\ndid this update?!????\n";
+
+	std::cout<<"\ndid this update_fri\n";
 }
 
 void
