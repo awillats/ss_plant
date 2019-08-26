@@ -26,13 +26,17 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "../../../module_help/StAC_rtxi/dataFuns.h"//for pullParamLine
-
-//#include "help.h"
 
 #include <default_gui_model.h>
 
-#include "../../../module_help/eigen/Eigen/Dense"
+// in module_help
+#include <eigen/Eigen/Dense>
+#include <StAC_rtxi/dataFuns.h>
+//#include <unsupported/Eigen/CXX11/Tensor>
+
+// plds
+	//#include <dynCtrlEst>
+#include <plds_adam_funs.hpp>
 
 class SsPlant : public DefaultGUIModel
 {
@@ -51,26 +55,30 @@ protected:
   virtual void update(DefaultGUIModel::update_flags_t);
 
 private:
-  double some_parameter;
-  double some_state;
   double period;
 
+  int switch_idx;
+/*
+  lds_adam sys;
+  glds_adam gsys;
+  plds_adam psys;
 
-	Eigen::Matrix2d A;
-	Eigen::Vector2d B;
-	Eigen::RowVector2d C;
-	float D;
+  slds multi_sys;
+*/
+  splds multi_psys;
+/*
+        adam::Mat A; //Eigen::Matrix2d A;
+        adam::Vec B; //Eigen::Vector2d B;
+        adam::RowVec C; //Eigen::RowVector2d C; 
+        adam::data_t D; 
+ */   
+        adam::Vec x;
+        adam::data_t y;
+        adam::data_t u;
 
-	Eigen::Vector2d x;
-	float y;
-
-	float u;
-
-  void loadSys(void);
-  void resetSys(void);
-  void printSys(void);
-  void stepPlant(double);
+  void resetAllSys();
   void initParameters();
+
 
 private slots:
   // these are custom functions that can also be connected to events

@@ -21,8 +21,14 @@
  *
  */
 
+// SWITCHED PLANT
+
+
 #include "ss_plant.h"
 #include <main_window.h>
+
+using namespace adam;//plds stuff
+
 
 extern "C" Plugin::Object*
 createRTXIPlugin(void)
@@ -35,23 +41,34 @@ static DefaultGUIModel::variable_t vars[] = {
     "State-space plant", "Tooltip description",
     DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE,
   },
+/*
+	{ "y","output", DefaultGUIModel::OUTPUT,},
+	{ "y_gauss","output", DefaultGUIModel::OUTPUT,},
+	{ "y_switch","output", DefaultGUIModel::OUTPUT,},
 
-	{
-		"y","output", DefaultGUIModel::OUTPUT,
-	},
-  {
-    "x1", "Tooltip description", DefaultGUIModel::OUTPUT,
-  },
-  {
-    "x2", "Tooltip description", DefaultGUIModel::OUTPUT,
-  },
-
+	{"exp(y)_poisson",".", DefaultGUIModel::OUTPUT,},
+	{"spikes",".", DefaultGUIModel::OUTPUT,},
+*/
+	{"exp(y)_poisson_switch","",DefaultGUIModel::OUTPUT,},
+	{"switch_spikes",".",DefaultGUIModel::OUTPUT,},
+/*
+	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{ "X_gauss", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{"X_poiss" , ".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+	{ "X_switch", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
+*/
+	{ "X_switch_p",".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE},
+	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process	
+	
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
 	},
 	{
 		"u dist","disturbance", DefaultGUIModel::INPUT,
 	},
+	{"q","state_index", DefaultGUIModel::INPUT | DefaultGUIModel::INTEGER},
+
+
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -76,102 +93,73 @@ SsPlant::~SsPlant(void)
 }
 
 
-void SsPlant::stepPlant(double uin)
-{
-	u = uin;
-	x = A*x + B*u;
-	y = C*x;
-}
-
 void
 SsPlant::execute(void)
 {
-	stepPlant(input(0)+input(1));
-	setState("x1",x(0));
-	setState("x2",x(1));
 
+	switch_idx = input(2);
+	//multi_sys.switchSys(switch_idx);//move into system class later
+	multi_psys.switchSys(switch_idx);
+
+	double u_pre = input(0)+input(1);
+	double u_total = u_pre;
+
+/*
+	sys.stepPlant(u_total);
+	gsys.stepPlant(u_total);
+	multi_sys.stepPlant(u_total);
+	
+	psys.stepPlant(u_total);
+*/
+	multi_psys.stepPlant(u_total);
+	
+	//offload new sys properties
+	x=multi_psys.x;
+	y=multi_psys.y;
+	
+/*
 	output(0) = y;
-	output(1) = x(0);
-	output(2) = x(1);
+	output(1) = gsys.y;
+	output(2) = multi_sys.y;
+
+	output(3) = psys.y_nl;
+	output(4) = psys.z;
+*/
+	output(0) = multi_psys.y_nl;
+	output(1) = multi_psys.z;
+
+/*
+	outputVector(7) = arma::conv_to<stdVec>::from(x);
+	outputVector(8) = arma::conv_to<stdVec>::from(gsys.x);
+	outputVector(9) = arma::conv_to<stdVec>::from(psys.x);
+
+	outputVector(10) = arma::conv_to<stdVec>::from(multi_sys.x);
+*/
+	outputVector(2) = arma::conv_to<stdVec>::from(multi_psys.x);
   return;
 }
 
 
-void
-SsPlant::loadSys(void)
+void SsPlant::resetAllSys(void)
 {
-	std::ifstream myfile;
-	myfile.open("../ss_ctrl/params/plant_params.txt");
-
-	//std::cout<<"load works here"<<"\n";
-	// numA;
-	//halp::simpleFun();
-	pullParamLine(myfile); //gets nx
-
-	std::vector<double> numA = pullParamLine(myfile);
-	Eigen::Map<Eigen::Matrix2d> tA(numA.data(),A.rows(),A.cols());
-	A = tA;
-
-	std::vector<double> numB = pullParamLine(myfile);
-	Eigen::Map<Eigen::Vector2d> tB(numB.data(),B.rows(),1);
-	B = tB;
-
-	std::vector<double> numC = pullParamLine(myfile);
-	Eigen::Map<Eigen::RowVector2d> tC(numC.data(),1,C.cols());
-	C = tC;
-
-	//For some silly reason, can't load D this way
-	std::vector<double> numD = pullParamLine(myfile);
-	//std::cout <<"ww"<< *numD.begin()<<"ww\n";
-	D = numD[0];
-	//D = (float) numD.at(0);
-
-	myfile.close();
-/*
-	//look on stackoverflow @ initialize eigenvector with stdvector
-	float data[] = {1,2,3,4};
-	Eigen::Map<Eigen::Vector3f> v1(data);
-	std::vector<float> data2= {1,2,3,4};
-	Eigen::Vector3f v2(data2.data());
-	std::cout<<v2<<"?\n";
-	//Eigen::Matrix2f zz;
-*/
+	//sys.resetSys();
+	//gsys.resetSys();
+	//multi_sys.resetSys();
+	multi_psys.resetSys();
 }
-
-void SsPlant::printSys(void)
-{
-  std::cout <<"Here is the matrix A:\n" << A << "\n";
-  std::cout <<"Here is the matrix B:\n" << B << "\n";
-  std::cout <<"Here is the matrix C:\n" << C << "\n";
-  std::cout <<"Here is the matrix D:\n" << D << "\n";
-}
-
-void SsPlant::resetSys(void)
-{
-	x << 0,0;
-	y = 0;
-	u = 0;
-}
-
-
 void
 SsPlant::initParameters(void)
 {
-  some_parameter = 0;
-  some_state = 0;
-
 /*
-	A << 0.9990, 0.0095,
-		-0.1903, 0.9039;
-	B << 0,
-		 0.0095;
-	C << 1,0;
-	D=0;
+    sys = lds_adam();
+    gsys = glds_adam();
+    multi_sys = slds();
 */
+    double period_in_s = (RT::System::getInstance()->getPeriod())*1e-9;
+ //   psys = plds_adam();psys.setDt(period_in_s);
 
-	loadSys();
-	printSys();
-	resetSys();
+
+    multi_psys = splds();
 }
 
 void
@@ -180,12 +168,9 @@ SsPlant::update(DefaultGUIModel::update_flags_t flag)
   switch (flag) {
     case INIT:
       period = RT::System::getInstance()->getPeriod() * 1e-6; // ms
-      setParameter("GUI label", some_parameter);
-      //setState("A State", some_state);
       break;
 
     case MODIFY:
-      some_parameter = getParameter("GUI label").toDouble();
       break;
 
     case UNPAUSE:
@@ -228,12 +213,11 @@ SsPlant::customizeGUI(void)
 void
 SsPlant::aBttn_event(void)
 {
-	loadSys();
-	printSys();
+	initParameters();
 }
 
 void
 SsPlant::bBttn_event(void)
 {
-	resetSys();
+	resetAllSys();
 }
