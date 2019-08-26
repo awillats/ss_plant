@@ -18,7 +18,7 @@
 
 /*
  * do gui elements last, just get outputs to screen
- * 
+ *
  */
 
 #include "ss_plant.h"
@@ -56,7 +56,7 @@ static DefaultGUIModel::variable_t vars[] = {
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 
-SsPlant::SsPlant(void)
+Ss::SsPlant(void)
   : DefaultGUIModel("SsPlant with Custom GUI", ::vars, ::num_vars)
 {
   setWhatsThis("<p><b>SsPlant:</b><br>QWhatsThis description.</p>");
@@ -89,7 +89,7 @@ SsPlant::execute(void)
 	stepPlant(input(0)+input(1));
 	setState("x1",x(0));
 	setState("x2",x(1));
-	
+
 	output(0) = y;
 	output(1) = x(0);
 	output(2) = x(1);
@@ -99,7 +99,7 @@ SsPlant::execute(void)
 
 void
 SsPlant::loadSys(void)
-{	
+{
 	std::ifstream myfile;
 	myfile.open("../ss_ctrl/params/plant_params.txt");
 
@@ -108,24 +108,24 @@ SsPlant::loadSys(void)
 	//halp::simpleFun();
 	pullParamLine(myfile); //gets nx
 
-	std::vector<double> numA = pullParamLine(myfile); 	
+	std::vector<double> numA = pullParamLine(myfile);
 	Eigen::Map<Eigen::Matrix2d> tA(numA.data(),A.rows(),A.cols());
 	A = tA;
-	
-	std::vector<double> numB = pullParamLine(myfile); 	
+
+	std::vector<double> numB = pullParamLine(myfile);
 	Eigen::Map<Eigen::Vector2d> tB(numB.data(),B.rows(),1);
 	B = tB;
 
-	std::vector<double> numC = pullParamLine(myfile); 	
+	std::vector<double> numC = pullParamLine(myfile);
 	Eigen::Map<Eigen::RowVector2d> tC(numC.data(),1,C.cols());
 	C = tC;
 
 	//For some silly reason, can't load D this way
-	std::vector<double> numD = pullParamLine(myfile); 	
+	std::vector<double> numD = pullParamLine(myfile);
 	//std::cout <<"ww"<< *numD.begin()<<"ww\n";
 	D = numD[0];
 	//D = (float) numD.at(0);
-	
+
 	myfile.close();
 /*
 	//look on stackoverflow @ initialize eigenvector with stdvector
@@ -237,4 +237,3 @@ SsPlant::bBttn_event(void)
 {
 	resetSys();
 }
-
