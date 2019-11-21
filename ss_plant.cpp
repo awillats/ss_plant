@@ -51,6 +51,7 @@ static DefaultGUIModel::variable_t vars[] = {
 */
 	{"exp(y)_poisson_switch","",DefaultGUIModel::OUTPUT,},
 	{"switch_spikes",".",DefaultGUIModel::OUTPUT,},
+
 /*
 	{ "X_out", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 	{ "X_gauss", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
@@ -59,7 +60,8 @@ static DefaultGUIModel::variable_t vars[] = {
 */
 	{ "X_switch_p",".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE},
 	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process	
-	
+	{ "y_linear","output", DefaultGUIModel::OUTPUT,},
+
 	{
 		"ustim","input", DefaultGUIModel::INPUT,
 	},
@@ -136,6 +138,7 @@ SsPlant::execute(void)
 	outputVector(10) = arma::conv_to<stdVec>::from(multi_sys.x);
 */
 	outputVector(2) = arma::conv_to<stdVec>::from(multi_psys.x);
+	output(3) = multi_psys.y;
   return;
 }
 
@@ -159,7 +162,7 @@ SsPlant::initParameters(void)
  //   psys = plds_adam();psys.setDt(period_in_s);
 
 
-    multi_psys = splds();
+    multi_psys = splds(); //this loads the params. make this take a specific file name?
 }
 
 void
