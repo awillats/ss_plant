@@ -59,7 +59,7 @@ static DefaultGUIModel::variable_t vars[] = {
 	{ "X_switch", "testVec", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE, },
 */
 	{ "X_switch_p",".", DefaultGUIModel::OUTPUT | DefaultGUIModel::VECTORDOUBLE},
-	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process	
+	//note that since we have 2 parallel switched systems, even though their internal dynamics are the same, internal noise processes are parallel process
 	{ "y_linear","output", DefaultGUIModel::OUTPUT,},
 
 	{
@@ -75,7 +75,7 @@ static DefaultGUIModel::variable_t vars[] = {
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 
-Ss::SsPlant(void)
+SsPlant::SsPlant(void)
   : DefaultGUIModel("SsPlant with Custom GUI", ::vars, ::num_vars)
 {
   setWhatsThis("<p><b>SsPlant:</b><br>QWhatsThis description.</p>");
@@ -110,15 +110,15 @@ SsPlant::execute(void)
 	sys.stepPlant(u_total);
 	gsys.stepPlant(u_total);
 	multi_sys.stepPlant(u_total);
-	
+
 	psys.stepPlant(u_total);
 */
 	multi_psys.stepPlant(u_total);
-	
+
 	//offload new sys properties
 	x=multi_psys.x;
 	y=multi_psys.y;
-	
+
 /*
 	output(0) = y;
 	output(1) = gsys.y;
